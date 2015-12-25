@@ -1,0 +1,11 @@
+#Updates from web
+git pull
+
+#For Update files
+#Adds all new files
+git add -A
+#Commits
+git commit -m "Commit Message"
+#Now push
+git push
+
