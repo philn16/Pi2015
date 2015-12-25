@@ -1,0 +1,10 @@
+echo HelloHuman!
+U0=$1
+echo $U0
+if [ ! -z $U0 ]
+then 
+echo "It exists"
+else
+echo "no exist"
+fi
+ 

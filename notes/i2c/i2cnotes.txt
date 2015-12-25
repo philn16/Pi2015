@@ -1,0 +1,13 @@
+#I2C Notes
+#See what is on the bus 1
+i2cdetect -r -y 1
+
+#dump of address
+i2cdump
+#Generic example
+i2cdump -y <bus> <address>
+#EXAMPLE
+i2cdump -y 1 0x77
+
+#Sets regisers?
+i2cset

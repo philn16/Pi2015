@@ -1,0 +1,43 @@
+#SSH:
+# views ip address to conect to
+hostname -I
+
+#Connect to comuter via shs
+ssh pi@<IP>
+
+#Finding Other computers on the network
+#Detailed OS
+sudo nmap -sS -O 192.168.1.0/24
+#Less Detailed
+nmap -sn 192.168.1.0/24
+
+#View Computers on Network:
+arp -a
+
+#Fuse files
+#add users
+usermod  -a -G fuse <Uname>
+#Connet & create
+sshfs  <Uname>@<Address>: <Direcory>
+
+#Start SSH serviece
+sudo service ssh start
+#located at /etc/int.d/ssh
+sudo service ssh stop 
+#Restart SSH
+sudo service ssh restart
+#SSH status
+service ssh status
+
+#Open display on other computer
+export DISPLAY=:0
+
+
+
+
+
+
+
+
+
+

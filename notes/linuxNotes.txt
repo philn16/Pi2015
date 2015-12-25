@@ -1,0 +1,61 @@
+Notes:
+
+#Open process in seperate shell / run several taskes
+add & to end. EXAMPLE: gedit & EXAMPLE: gedit & totem
+
+#Opening with default program
+xdg-open
+
+#Change Volume Terminal
+amixer -q sset Master 90%+
+amixer -q sset Master 90%-
+#mute/unmute
+amixer -q sset Master toggle
+
+#View Proceses
+top
+ps aux | less
+pstree
+
+#Default media player:
+totem
+totem --quit
+totem --play-pause
+totem --pause  totem --play
+totem --volume-up   totem --volume-down   totem --mute
+ 
+#View Hostname
+hostname
+#View IP
+hostname -I
+#Change hostname
+sudo hostname <NewName>
+
+$Disk Mounting:
+$Doesn't do much:
+sudo mount
+$List the disks:
+lsblk
+sudo fdisk -l
+$Create Mount point:
+sudo mkdir /mnt/mypartition
+$Edit partiton file:
+sudo nano /etc/fstab
+#Mount:
+sudo mount /dev/sdaX [folderhere]
+
+#Fedora Package manager
+dnf install [name]
+#Fedira default open:
+xdg-oepn [filename or URL]
+#View Hardware:
+lscpu, lshw, lspci, lsblk, df
+#Program Management:
+free [-g, -m]
+
+#Change welcome message after loging
+vi /etc/motd
+
+#Edit permissions
+chmod u=rwx,g=rw,o=r FileName
+chmod 754 FileName
