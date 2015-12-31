@@ -1,0 +1,2 @@
+#!/bin/sh
+g++ L3GD20_Test.cpp -o run

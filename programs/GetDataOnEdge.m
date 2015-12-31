@@ -5,9 +5,11 @@ datafile = [directory 'data.lib'];
 
 %Runtime options
 options.PlotOrigionalDataAndCLock = 0;
-options.PlotDataAndCLock = 0;
+options.PlotDataAndCLock = 1;
 options.PlotOutData = 1;
 options.DisplayHexOut = 1;
+options.StartIndex = 1;
+options.EndIndex = 2500;
 
 %End of Configurable vars
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -23,8 +25,23 @@ ORIGdata = fscanf(fileID,'%f');
 fclose(fileID);
 clear clockfile datafile directory fileID
 
+
 clock = MakeBinary(ORIGclock);
 data = MakeBinary(ORIGdata);
+
+if (options.StartIndex ~= 1 || options.EndIndex ~= 0)
+    if (options.EndIndex < options.StartIndex && options.EndIndex ~= 0)
+        error('End index > Start index')
+    end
+    if options.EndIndex == 0
+    endvalue = numel(clock);
+    else
+        endvalue = options.EndIndex;
+    end
+    clock = clock(options.StartIndex : endvalue);
+    data = data(options.StartIndex : endvalue);
+    clear endvalue
+end
 
 PositiveEdges = find(clock(2:numel(clock)) > clock(1:numel(clock)-1));
 % NegativeEdges = find(clock(2:numel(clock)) < clock(1:numel(clock)-1));
@@ -111,7 +128,7 @@ if options.DisplayHexOut
     clear OutString
     OutString(floor(numel(OutData)/9),4)=char(0);
     for i=1:9:(numel(OutData)-9)
-        OutString((i-1)/9+1 , 1:4)= [binaryVectorToHex(OutData(i:i+7)) ,' ', char(OutData(i+9)+'0')];
+        OutString((i-1)/9+1 , 1:4)= [binaryVectorToHex(OutData(i:i+7)) ,' ', char(OutData(i+9-1)+'0')];
     end
     OutString
 end

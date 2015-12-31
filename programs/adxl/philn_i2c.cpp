@@ -25,34 +25,72 @@ void i2cSetAddress(int address){
 	}
 }
 
-void MultiByteWrite(const uint8_t RegisterAddress, const uint8_t* values,const int AdditionalAmmount)	
+/* 
+RegisterAddress[0] gets values[0]
+RegisterAddress[1] gets values[1]
+... 
+*/
+void MultiByteWrite(const uint8_t RegisterAddress, const uint8_t* values,const int BytesToWrite)	
 {
-	uint8_t* data = new uint8_t[AdditionalAmmount + 2];
+#if 1
+	for (int i=0; i < BytesToWrite; i+=2){
+#if 1
+		uint16_t writevalue = (values[i+1] << 8) | values[i];
+#else // some serious stuff
+		uint16_t& writevalue = *(uint16_t*)&values[i];
+#endif
+		i2c_smbus_write_word_data(g_i2cFile , i+RegisterAddress , writevalue);
+	}
+	if(BytesToWrite % 2 == 1)// signle byte writes remainder
+	i2c_smbus_write_byte(g_i2cFile , values[BytesToWrite-1]);
+#else
+	uint8_t* data = new uint8_t[BytesToWrite + 2];
 	data[0] = RegisterAddress;
-	for(int i=0; i< AdditionalAmmount; i++)
+	for(int i=0; i< BytesToWrite; i++)
 	data[i+1] = values[i];
-// Start , (SlaveAddress<<8) | Write (0), ACK , RegisterAddress , ACK , Data From Master , ACK , ... , Data From Master , ACK , Stop
-	if (write(g_i2cFile, data, AdditionalAmmount + 1) != AdditionalAmmount + 1)
+	// Start , (SlaveAddress<<8) | Write (0), ACK , RegisterAddress , ACK , Data From Master , ACK , ... , Data From Master , ACK , Stop
+	if (write(g_i2cFile, data, BytesToWrite + 1) != BytesToWrite + 1)
 	perror("Write Failed MultiByteWrite");
 	delete [] data;
+	#endif
 }
 
 void SingleByteWrite(const uint8_t RegisterAddress, const uint8_t value){
-uint8_t data[2];
-data[0]=RegisterAddress;
-data[1]=value;
-// Start , (SlaveAddress<<8) | Write (0), ACK , RegisterAddress , ACK , Data From Master, ACK , Stop
-if (write(g_i2cFile, &data[0], 2) != 2);
+	uint8_t data[2];
+	data[0]=RegisterAddress;
+	data[1]=value;
+	// Start , (SlaveAddress<<8) | Write (0), ACK , RegisterAddress , ACK , Data From Master, ACK , Stop
+	if (write(g_i2cFile, &data[0], 2) != 2)
 	perror("Write Failed SingleByteWrite");
 }
 
-void MultiByteRead(const uint8_t RegisterAddress, uint8_t* ReadInData,const int ammount)	{
-	for(int i=0; i < ammount; i++)
-	ReadInData[i] = 0x2;
-	//Start ,  (SlaveAddress<<8) | Write (0) , ACK , Register Address , ACK
-	write(g_i2cFile, &RegisterAddress, 1);
-// Start, (SlaveAddress<<8) |Read (1) , ACK , Data From Slave , ACK , ... , Data From Slave , ACK , NACK , STOP
-	if(read(g_i2cFile, ReadInData, ammount) != ammount)	
-	perror("Read Failed MultiByteRead");
+
+
+uint8_t SingleByteRead(const uint8_t RegisterAddress)	{
+	return i2c_smbus_read_byte_data(g_i2cFile, RegisterAddress);
 }
 
+/*
+ReadInData[0] gets Reg[RegisterAddress]
+ReadInData[1] gets Reg[RegisterAddress+1]
+...
+*/
+void MultiByteRead(const uint8_t RegisterAddress, uint8_t* ReadInData,const int ammount)	{
+#if 1 //I2C_SLOW_MULTI_BYTE_READ // gets 2 bits at a time
+	for(int i=0; i < ammount ; i += 2)
+	{
+		uint16_t stuff = i2c_smbus_read_word_data(g_i2cFile, RegisterAddress+i);	
+		#if 1 // uses some sweet bit manipulation
+		*(uint16_t*)&ReadInData[i] = stuff;
+		#else // not bit manipulation
+		ReadInData[i] = stuff & 0x00ff;
+		ReadInData[i+1]  = (stuff & 0xff00) >> 8;
+		#endif
+	}
+	if (ammount % 2 == 1)
+	ReadInData[ammount-1] = SingleByteRead(RegisterAddress+(uint8_t)(ammount-1));
+	#else // simple 1 bit at a time
+	for(int i=0; i < ammount;i++)
+	ReadInData[i] = i2c_smbus_read_byte_data(g_i2cFile, RegisterAddress);//same as SingleByteRead(RegisterAddress+(uint8_t)i);
+#endif
+}

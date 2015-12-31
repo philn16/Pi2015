@@ -33,14 +33,9 @@ std::cin.ignore();
 
 	for(int i=0; i < 5555; i++){
 		int x,y,z;
-		x=-1;y=-1;z=-1;
+		x=-2;y=-2;z=-2;
 		accelGetData(x,y,z);
-		
-		uint8_t StoreTo[6];
-		MultiByteRead(0x32, &StoreTo[4],2);		 
-		z = (int16_t)(StoreTo[4] | (StoreTo[5] << 8));
-
-		
+	
 		printf("X: %4d Y: %4d Z: %4d\n", x,y,z);
 		printf("X: %4x Y: %4x Z: %4x\n\n", x & 0xffff,y & 0xffff,z & 0xffff);
 		cout << std::flush;

@@ -1,0 +1,2 @@
+#!/bin/sh
+g++ LSM303D_test.cpp -o run
