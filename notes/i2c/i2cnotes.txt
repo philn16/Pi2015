@@ -8,6 +8,8 @@ i2cdump
 i2cdump -y <bus> <address>
 #EXAMPLE
 i2cdump -y 1 0x77
+#EXAMPLE
+ i2cdump -y -r 0x28-0x2d 1 0x6b
 
 #Sets regisers?
 i2cset

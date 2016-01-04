@@ -29,7 +29,7 @@ SingleByteWrite(0x24 , 0xf8);
 SingleByteWrite(0x25 , 0x60);
 
 // AHPM1 , AHPM0 , AFDS , T_ONLY , 0 , MLP , MD1 , MD0
-SingleByteWrite(0x26 , 0x02);
+SingleByteWrite(0x26 , 0x00);
 
 // FM2 , FM1 , FM0 , FTH4 , FTH3 , FTH2 , FTH1 , FTH0
 SingleByteWrite(0x2E , 0x00);
@@ -64,7 +64,7 @@ void Read_LSM303D_Accelerometer(int& x,int& y,int& z){
 	// z = 0x2D << 8 | 0x2C
 
 	uint8_t regs[6];
-	MultiByteRead(0x28, &regs[0],6);
+	MultiByteReadSingleBytes(0x28, &regs[0],6);
 	x = (int16_t)(regs[0] | (regs[1] << 8));
 	y = (int16_t)(regs[2] | (regs[3] << 8));
 	z = (int16_t)(regs[4] | (regs[5] << 8));	
@@ -72,12 +72,13 @@ void Read_LSM303D_Accelerometer(int& x,int& y,int& z){
 
 void Read_LSM303D_Magnetometer(int& x,int& y,int& z){
 	uint8_t regs[6];
-	MultiByteRead(0x08, &regs[0],6);
+	MultiByteReadSingleBytes(0x08, &regs[0],6);
 	x = (int16_t)(regs[0] | (regs[1] << 8));
 	y = (int16_t)(regs[2] | (regs[3] << 8));
 	z = (int16_t)(regs[4] | (regs[5] << 8));	
 }
 
+// 8 LSB per degree celscius
 int Read_LSM303D_Temperature(){
 	// The LSM303D features an internal temperature sensor. Temperature data can be enabled by setting the TEMP_EN bit on the CTRL5 (24h) register to 1.
 	
@@ -85,7 +86,7 @@ int Read_LSM303D_Temperature(){
 	
 	// Temperature Register (0x05) | (0x06 << 8). 1 LSB / deg
 	uint8_t reg[2];
-	MultiByteRead(0x05, &reg[0],2);
+	MultiByteReadSingleBytes(0x05, &reg[0],2);
 	int temperature = (int16_t)(reg[0] | (reg[1] << 8));
 	return temperature;
 }

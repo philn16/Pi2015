@@ -70,13 +70,24 @@ uint8_t SingleByteRead(const uint8_t RegisterAddress)	{
 	return i2c_smbus_read_byte_data(g_i2cFile, RegisterAddress);
 }
 
+
+/*
+ReadInData[0] gets Reg[RegisterAddress]
+ReadInData[1] gets Reg[RegisterAddress+1]
+...
+Same as MultiByteRead, except usese single byte reads instead
+*/
+void MultiByteReadSingleBytes(const uint8_t RegisterAddress, uint8_t* ReadInData,const int ammount)	{
+	for(int i=0; i < ammount;i++)
+	ReadInData[i] = i2c_smbus_read_byte_data(g_i2cFile, RegisterAddress+i);//same as SingleByteRead(RegisterAddress+(uint8_t)i);
+}
+
 /*
 ReadInData[0] gets Reg[RegisterAddress]
 ReadInData[1] gets Reg[RegisterAddress+1]
 ...
 */
 void MultiByteRead(const uint8_t RegisterAddress, uint8_t* ReadInData,const int ammount)	{
-#if 0 //I2C_SLOW_MULTI_BYTE_READ // gets 2 bits at a time
 	for(int i=0; i < ammount ; i += 2)
 	{
 uint16_t stuff = i2c_smbus_read_word_data(g_i2cFile, RegisterAddress+i);	
@@ -89,8 +100,4 @@ uint16_t stuff = i2c_smbus_read_word_data(g_i2cFile, RegisterAddress+i);
 	}
 	if (ammount % 2 == 1)
 	ReadInData[ammount-1] = SingleByteRead(RegisterAddress+(uint8_t)(ammount-1));
-	#else // simple 1 bit at a time
-	for(int i=0; i < ammount;i++)
-	ReadInData[i] = i2c_smbus_read_byte_data(g_i2cFile, RegisterAddress+i);//same as SingleByteRead(RegisterAddress+(uint8_t)i);
-#endif
 }

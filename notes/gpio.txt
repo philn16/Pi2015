@@ -1,0 +1,28 @@
+#location of GPIO stuff:
+/sys/class/gpio
+
+#Exoprt GPIO
+echo [GPIO Number] > export
+#EXAMPLE
+echo 4 > export
+
+#UnExport GPIO
+echo [GPIO Number] > unexport
+#EXAMPLE
+echo 4 > unexport
+
+# Go into one of the GPIO directories.
+#EXAMPLE:
+cd gpio4
+
+#Change Direction. Note GPIO4 cannot change direction
+echo "out" > direction
+echo "in" > direction
+
+#Change Output value to high
+echo 1 > value
+#Change Output value to low
+echo 0 > value
+
+#Read value. 1 is hihg, 0 is low
+cat value

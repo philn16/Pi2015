@@ -59,3 +59,9 @@ vi /etc/motd
 #Edit permissions
 chmod u=rwx,g=rw,o=r FileName
 chmod 754 FileName
+
+#Write text to file directly
+echo "The text" > FileName
+
+#Load Raspbian GUI
+startx

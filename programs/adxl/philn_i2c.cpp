@@ -33,16 +33,16 @@ RegisterAddress[1] gets values[1]
 void MultiByteWrite(const uint8_t RegisterAddress, const uint8_t* values,const int BytesToWrite)	
 {
 #if 1
-	for (int i=0; i < BytesToWrite; i+=2){
+for (int i=0; i < BytesToWrite; i+=2){
 #if 1
-		uint16_t writevalue = (values[i+1] << 8) | values[i];
+uint16_t writevalue = (values[i+1] << 8) | values[i];
 #else // some serious stuff
-		uint16_t& writevalue = *(uint16_t*)&values[i];
+uint16_t& writevalue = *(uint16_t*)&values[i];
 #endif
-		i2c_smbus_write_word_data(g_i2cFile , i+RegisterAddress , writevalue);
-	}
-	if(BytesToWrite % 2 == 1)// signle byte writes remainder
-	i2c_smbus_write_byte(g_i2cFile , values[BytesToWrite-1]);
+i2c_smbus_write_word_data(g_i2cFile , i+RegisterAddress , writevalue);
+}
+if(BytesToWrite % 2 == 1)// signle byte writes remainder
+i2c_smbus_write_byte(g_i2cFile , values[BytesToWrite-1]);
 #else
 	uint8_t* data = new uint8_t[BytesToWrite + 2];
 	data[0] = RegisterAddress;
@@ -70,27 +70,34 @@ uint8_t SingleByteRead(const uint8_t RegisterAddress)	{
 	return i2c_smbus_read_byte_data(g_i2cFile, RegisterAddress);
 }
 
+
+/*
+ReadInData[0] gets Reg[RegisterAddress]
+ReadInData[1] gets Reg[RegisterAddress+1]
+...
+Same as MultiByteRead, except usese single byte reads instead
+*/
+void MultiByteReadSingleBytes(const uint8_t RegisterAddress, uint8_t* ReadInData,const int ammount)	{
+	for(int i=0; i < ammount;i++)
+	ReadInData[i] = i2c_smbus_read_byte_data(g_i2cFile, RegisterAddress+i);//same as SingleByteRead(RegisterAddress+(uint8_t)i);
+}
+
 /*
 ReadInData[0] gets Reg[RegisterAddress]
 ReadInData[1] gets Reg[RegisterAddress+1]
 ...
 */
 void MultiByteRead(const uint8_t RegisterAddress, uint8_t* ReadInData,const int ammount)	{
-#if 1 //I2C_SLOW_MULTI_BYTE_READ // gets 2 bits at a time
 	for(int i=0; i < ammount ; i += 2)
 	{
-		uint16_t stuff = i2c_smbus_read_word_data(g_i2cFile, RegisterAddress+i);	
-		#if 1 // uses some sweet bit manipulation
-		*(uint16_t*)&ReadInData[i] = stuff;
-		#else // not bit manipulation
-		ReadInData[i] = stuff & 0x00ff;
+uint16_t stuff = i2c_smbus_read_word_data(g_i2cFile, RegisterAddress+i);	
+	#if 1 // uses some sweet bit manipulation
+	*(uint16_t*)&ReadInData[i] = stuff;
+	#else // not bit manipulation
+			ReadInData[i] = stuff & 0x00ff;
 		ReadInData[i+1]  = (stuff & 0xff00) >> 8;
-		#endif
+	#endif
 	}
 	if (ammount % 2 == 1)
 	ReadInData[ammount-1] = SingleByteRead(RegisterAddress+(uint8_t)(ammount-1));
-	#else // simple 1 bit at a time
-	for(int i=0; i < ammount;i++)
-	ReadInData[i] = i2c_smbus_read_byte_data(g_i2cFile, RegisterAddress);//same as SingleByteRead(RegisterAddress+(uint8_t)i);
-#endif
 }
