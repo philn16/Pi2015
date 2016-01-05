@@ -1,0 +1,7 @@
+This can be used to test SPI send and receive. Put a wire between MOSI and MISO. It does not test CE0 and CE1.
+
+
+MOSI    P1-19
+MISO    P1-21
+SCLK    P1-23   P1-24    CE0
+GND     P1-25   P1-26    CE1
